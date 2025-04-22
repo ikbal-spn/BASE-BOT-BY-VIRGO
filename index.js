@@ -17,7 +17,7 @@ const msgRetryCounterCache = new NodeCache();
 const sessionFolder = './session';
 
 // Owner numbers (modify with your own)
-export const ownerNumbers = ['6281234567890']; // Add your number here
+export const ownerNumbers = ['6283821115236']; // Add your number here
 
 // Fungsi untuk prompt input dari user
 const question = (text) => {
