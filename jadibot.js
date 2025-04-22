@@ -317,4 +317,56 @@ export const listJadiBots = async () => {
     botNumbers.forEach((number, index) => {
       const { createdAt } = jadiBots[number];
       const botCreatedTime = createdAt.toLocaleString();
-      message += `${index + 1}. Nomor: ${number}\n   - Dibuat pada: ${botCreatedTime}\n
+      message += `${index + 1}. Nomor: ${number}\n   - Dibuat pada: ${botCreatedTime}\n\n`;
+    });
+    
+    return message;
+  } catch (error) {
+    console.error('Error saat menampilkan daftar jadibot:', error);
+    return 'Gagal menampilkan daftar jadibot: ' + error.message;
+  }
+};
+
+// Fungsi untuk me-restore sesi jadibot yang sudah ada
+export const restoreJadiBots = async () => {
+  try {
+    // Cek apakah folder jadibots ada
+    const jadibotFolder = './jadibots';
+    if (!fs.existsSync(jadibotFolder)) {
+      fs.mkdirSync(jadibotFolder, { recursive: true });
+      return;
+    }
+    
+    // Baca folder di dalam jadibots
+    const folders = fs.readdirSync(jadibotFolder, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+    
+    if (folders.length === 0) return;
+    
+    console.log(chalk.blue.bold(`[INFO] Mengembalikan ${folders.length} sesi jadibot...`));
+    
+    // Restore setiap sesi
+    for (const folder of folders) {
+      const phoneNumber = folder;
+      const sessionFolder = path.join(jadibotFolder, folder);
+      
+      // Cek apakah ada file creds.json
+      if (!fs.existsSync(path.join(sessionFolder, 'creds.json'))) {
+        console.log(`[WARNING] Folder ${folder} tidak memiliki file creds.json, melewati...`);
+        continue;
+      }
+      
+      // Buat koneksi jadibot
+      console.log(`[INFO] Mencoba mengembalikan sesi untuk bot ${phoneNumber}...`);
+      await createJadiBotSession(phoneNumber, sessionFolder);
+    }
+    
+    console.log(chalk.green.bold(`[✓] Proses restore jadibot selesai!`));
+  } catch (error) {
+    console.error('Error saat me-restore jadibot:', error);
+  }
+};
+
+// Panggil restoreJadiBots saat aplikasi dimulai
+restoreJadiBots();
